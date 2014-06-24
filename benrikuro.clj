@@ -24,7 +24,7 @@
 
 (defcopy fnk plumbing/fnk)
 (defcopy defnk plumbing/defnk)
-(defcopy vmap plumbing/map-vals)
+(defcopy map-vals plumbing/map-vals)
 (defcopy <- plumbing/<-)
 (defcopy fn-> plumbing/fn->)
 (defcopy fn->> plumbing/fn->>)
@@ -63,6 +63,8 @@
   [pred coll] (一 (→?→ pred coll)))
 
 (ƒ map-dregs [f & colls]
+  "Like map but when there is a different count between colls, applies input fn
+   to the coll values until the biggest coll is empty."
   ((fn map* [f colls]
      (lazy-seq
        (when (some seq colls)
@@ -104,6 +106,19 @@
         (apply update-in* m [key] f args))
           m keys))
 
+(ƒ update-vals
+  "Updates all the values of a map"
+  [m f & args]
+  (reduce (fn [r [k v]] (assoc r k (apply f v args)))
+          {} m))
+
+(ƒ update-multi
+  "Updates multiple keys of a map with multiple fns using a map of key/fn pairs."
+  [m fn-m]
+  (merge
+    m
+    (into {} (map (fn [[k f]] [k (f (k m))]) fn-m))))
+
 (ƒ str->stream [string] (→ string .getBytes clojure.java.io/input-stream))
 (defcopy str→stream str->stream)
 
@@ -114,7 +129,7 @@
   [core-f f coll]
   (into (empty coll) (core-f f coll)))
 
-(defn kmap
+(defn map-keys
   "same as map but applied to keys of hash maps only."
   [f m]
   (into {} (map (λ [[k v]] [(f k) v]) m)))
