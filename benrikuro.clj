@@ -3,14 +3,43 @@
             [clojure.pprint :refer [print-table]]
             [plumbing.core :as plumbing]))
 
+(defmacro defcopy
+  "Defines a copy of a var: a new var with the same root binding (if
+   any) and similar metadata. The metadata of the copy is its initial
+   metadata (as provided by def) merged into the metadata of the original.
+   source: same as defalias from clojure 1.2 and downwards."
+  ([name orig]
+  `(do
+     (alter-meta!
+      (if (.hasRoot (var ~orig))
+        (def ~name (.getRawRoot (var ~orig)))
+        (def ~name))
+      ;; When copying metadata, disregard {:macro false}.
+      ;; Workaround for http://www.assembla.com/spaces/clojure/tickets/273
+      #(conj (dissoc % :macro)
+             (apply dissoc (meta (var ~orig)) (remove #{:macro} (keys %)))))
+     (var ~name)))
+  ([name orig doc]
+   (list `defcopy (with-meta name (assoc (meta name) :doc doc)) orig)))
+
+(defcopy fnk plumbing/fnk)
+(defcopy defnk plumbing/defnk)
+(defcopy vmap plumbing/map-vals)
+(defcopy <- plumbing/<-)
+(defcopy fn-> plumbing/fn->)
+(defcopy fn->> plumbing/fn->>)
+
 (def #^{:macro true} ƒ #'defn)
 (def #^{:macro true} λ #'fn)
 (def #^{:macro true} → #'->)
 (def #^{:macro true} ↠ #'->>)
+(def #^{:macro true} ← #'<-)
 (def #^{:macro true} ∨ #'or)
 (def #^{:macro true} ∧ #'and)
 (def #^{:macro true} ∃→ #'some->)
 (def #^{:macro true} ∃↠ #'some->>)
+(def #^{:macro true} λ→ #'fn->)
+(def #^{:macro true} λ↠ #'fn->>)
 
 ;(def χ def)
 (def →λ partial)
@@ -33,7 +62,6 @@
    and return nil if no match is found."
   [pred coll] (一 (→?→ pred coll)))
 
-; (map str "abc" (concat "de" (repeat "")))
 (ƒ map-dregs [f & colls]
   ((fn map* [f colls]
      (lazy-seq
@@ -42,11 +70,15 @@
                (map* f (map rest colls))))))
    f colls))
 
-;(defn map-dregs [f & colls]
-;  (let [coll (partition-all (count ["a" "b"]) (concat ["a" "b"] ["c" "d" "e"]))]
-;    (concat
-;      (apply map str (butlast coll))
-;      (last coll))))
+(defn update
+  "Updates the value in map m at k with the function f.
+
+  Like update-in, but for updating a single top-level key.
+  Any additional args will be passed to f after the value."
+  ([m k f] (assoc m k (f (get m k))))
+  ([m k f x1] (assoc m k (f (get m k) x1)))
+  ([m k f x1 x2] (assoc m k (f (get m k) x1 x2)))
+  ([m k f x1 x2 & xs] (assoc m k (apply f (get m k) x1 x2 xs))))
 
 (ƒ update-in*
   "Updates a value in a nested associative structure, where ks is a sequence of keys and f is a
@@ -72,29 +104,20 @@
         (apply update-in* m [key] f args))
           m keys))
 
-(defmacro defcopy
-  "Defines a copy of a var: a new var with the same root binding (if
-   any) and similar metadata. The metadata of the copy is its initial
-   metadata (as provided by def) merged into the metadata of the original.
-   source: same as defalias from clojure 1.2 and downwards."
-  ([name orig]
-  `(do
-     (alter-meta!
-      (if (.hasRoot (var ~orig))
-        (def ~name (.getRawRoot (var ~orig)))
-        (def ~name))
-      ;; When copying metadata, disregard {:macro false}.
-      ;; Workaround for http://www.assembla.com/spaces/clojure/tickets/273
-      #(conj (dissoc % :macro)
-             (apply dissoc (meta (var ~orig)) (remove #{:macro} (keys %)))))
-     (var ~name)))
-  ([name orig doc]
-   (list `defcopy (with-meta name (assoc (meta name) :doc doc)) orig)))
-
 (ƒ str->stream [string] (→ string .getBytes clojure.java.io/input-stream))
 (defcopy str→stream str->stream)
 
 (def nilify (constantly nil))
+
+(defn unlazy
+  "Same as map/filter/reduce, but preserves the input data type."
+  [core-f f coll]
+  (into (empty coll) (core-f f coll)))
+
+(defn kmap
+  "same as map but applied to keys of hash maps only."
+  [f m]
+  (into {} (map (λ [[k v]] [(f k) v]) m)))
 
 (ƒ get-members [some-type]
   (↠ (→ some-type reflect :members)
@@ -124,7 +147,3 @@
   (→ klass (.getDeclaredField (name field-name))
       (doto (.setAccessible true))
       (.get obj)))
-
-(defcopy fnk plumbing/fnk)
-(defcopy defnk plumbing/defnk)
-(defcopy vmap plumbing/map-vals)
