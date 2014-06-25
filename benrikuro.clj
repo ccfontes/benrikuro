@@ -134,7 +134,13 @@
   [f m]
   (into {} (map (λ [[k v]] [(f k) v]) m)))
 
-(ƒ get-members [some-type]
+(ƒ or-> [x & args]
+  "Same as -> but defaults to the initial value if the result is falsey."
+  (or (eval `(-> ~x ~@args)) x))
+
+(defcopy or→ or->)
+
+(ƒ ->members [some-type]
   (↠ (→ some-type reflect :members)
      (filter :exception-types)
      (sort-by :name)
@@ -155,8 +161,8 @@
       (doto (.setAccessible true))
       (.invoke obj (into-array Object args))))
 
-(ƒ get-field
-  "Access to private or protected field.  field-name is a symbol or
+(ƒ ->field
+  "Access to private or protected field. field-name is a symbol or
   keyword."
   [klass field-name obj]
   (→ klass (.getDeclaredField (name field-name))
