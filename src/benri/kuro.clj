@@ -1,4 +1,4 @@
-(ns benrikuro
+(ns benri.kuro
   (:require [clojure.reflect :refer [reflect]]
             [clojure.pprint :refer [print-table]]
             [plumbing.core :as plumbing]))
