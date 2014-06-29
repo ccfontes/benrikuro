@@ -28,6 +28,7 @@
 (defcopy <- plumbing/<-)
 (defcopy fn-> plumbing/fn->)
 (defcopy fn->> plumbing/fn->>)
+(defcopy update plumbing/update)
 
 (def #^{:macro true} ƒ #'defn)
 (def #^{:macro true} λ #'fn)
@@ -62,6 +63,31 @@
    and return nil if no match is found."
   [pred coll] (一 (→?→ pred coll)))
 
+(ƒ first-truthy
+  "Returns the first item in coll for which (pred item) is not nil.
+   Consumes sequences up to the first match, will consume the entire sequence
+   and return nil if no match is found."
+  [coll] (ffilter identity coll))
+
+(ƒ keep-first
+  "Returns the first (pred item) for which value is not nil.
+   Consumes sequences up to the first match, will consume the entire sequence
+   and return nil if no match is found."
+  [pred coll] (一 (keep pred coll)))
+
+(ƒ mapm
+  "Returns a map consisting of the result of applying f to the
+  set of first items of each coll, followed by applying f to the set
+  of second items in each coll, until any one of the colls is
+  exhausted.  Any remaining items in other colls are ignored. Function
+  f should accept number-of-colls arguments."
+  ([f coll]
+     (-> (reduce (fn [v o] (conj! v (f o))) (transient {}) coll)
+         persistent!))
+  ([f c1 c2] (into {} (map f c1 c2)))
+  ([f c1 c2 c3] (into {} (map f c1 c2 c3)))
+  ([f c1 c2 c3 & colls] (into {} (apply map f c1 c2 c3 colls))))
+
 (ƒ map-dregs [f & colls]
   "Like map but when there is a different count between colls, applies input fn
    to the coll values until the biggest coll is empty."
@@ -72,15 +98,10 @@
                (map* f (map rest colls))))))
    f colls))
 
-(defn update
-  "Updates the value in map m at k with the function f.
-
-  Like update-in, but for updating a single top-level key.
-  Any additional args will be passed to f after the value."
-  ([m k f] (assoc m k (f (get m k))))
-  ([m k f x1] (assoc m k (f (get m k) x1)))
-  ([m k f x1 x2] (assoc m k (f (get m k) x1 x2)))
-  ([m k f x1 x2 & xs] (assoc m k (apply f (get m k) x1 x2 xs))))
+(ƒ map-keys
+  "same as map but applied to keys of hash maps only."
+  [f m]
+  (into {} (map (λ [[k v]] [(f k) v]) m)))
 
 (ƒ update-in*
   "Updates a value in a nested associative structure, where ks is a sequence of keys and f is a
@@ -106,12 +127,6 @@
         (apply update-in* m [key] f args))
           m keys))
 
-(ƒ update-vals
-  "Updates all the values of a map"
-  [m f & args]
-  (reduce (fn [r [k v]] (assoc r k (apply f v args)))
-          {} m))
-
 (ƒ update-multi
   "Updates multiple keys of a map with multiple fns using a map of key/fn pairs."
   [m fn-m]
@@ -124,19 +139,13 @@
 
 (def nilify (constantly nil))
 
-(defn unlazy
-  "Same as map/filter/reduce, but preserves the input data type."
-  [core-f f coll]
-  (into (empty coll) (core-f f coll)))
-
-(defn map-keys
-  "same as map but applied to keys of hash maps only."
-  [f m]
-  (into {} (map (λ [[k v]] [(f k) v]) m)))
-
 (ƒ or-> [x & args]
   "Same as -> but defaults to the initial value if the result is falsey."
   (or (eval `(-> ~x ~@args)) x))
+
+(ƒ and-> [x & args]
+  "Same as -> but returns the initial value if the result is true."
+  (and (eval `(-> ~x ~@args)) x))
 
 (defcopy or→ or->)
 
