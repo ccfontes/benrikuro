@@ -132,7 +132,7 @@
   [m fn-m]
   (merge
     m
-    (into {} (map (fn [[k f]] [k (f (k m))]) fn-m))))
+    (some->> m (#(map (fn [[k f]] [k (f (k %))]) fn-m)) (into {}))))
 
 (ƒ str->stream [string] (→ string .getBytes clojure.java.io/input-stream))
 (defcopy str→stream str->stream)
