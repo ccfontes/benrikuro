@@ -98,10 +98,10 @@
                (map* f (map rest colls))))))
    f colls))
 
-(ƒ map-keys
-  "same as map but applied to keys of hash maps only."
-  [f m]
-  (into {} (map (λ [[k v]] [(f k) v]) m)))
+(defn map-keys
+  "Applies f to all the keys in the map."
+  [m f]
+  (reduce-kv (fn [m k v] (assoc m (f k) v)) {} (or m {})))
 
 (ƒ update-in*
   "Updates a value in a nested associative structure, where ks is a sequence of keys and f is a
@@ -177,3 +177,18 @@
   (→ klass (.getDeclaredField (name field-name))
       (doto (.setAccessible true))
       (.get obj)))
+
+(defn debug
+  "Print class and value information for input Var."
+  [arg]
+  (println "debug")
+  (println "class: " (class arg))
+  (println "value: " arg))
+
+(defn thrush-debug
+  "Print class and value information for input Var inside '->' or '->>'."
+  [arg]
+  (println "trush debug")
+  (println "class: " (class arg))
+  (println "value: " arg)
+  arg)

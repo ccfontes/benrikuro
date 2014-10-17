@@ -1,6 +1,8 @@
-(defproject benrikuro "0.4.1"
+(defproject benrikuro "0.4.2"
 
   :url "https://github.com/ccfontes/benrikuro"
+
+  :description "Clojure utility forms and aliases for some clojure.core forms."
 
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
