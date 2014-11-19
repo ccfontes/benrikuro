@@ -1,7 +1,8 @@
 (ns benri.kuro
   (:require [clojure.reflect :refer [reflect]]
             [clojure.pprint :refer [print-table]]
-            [plumbing.core :as plumbing]))
+            [plumbing.core :as plumbing])
+  (:refer-clojure :exclude [update])) ; OPTIMIZE remove after update to clj 1.7
 
 (defmacro defcopy
   "Defines a copy of a var: a new var with the same root binding (if
@@ -28,7 +29,7 @@
 (defcopy <- plumbing/<-)
 (defcopy fn-> plumbing/fn->)
 (defcopy fn->> plumbing/fn->>)
-(defcopy update plumbing/update)
+(defcopy update plumbing/update) ; OPTIMIZE remove after update to clj 1.7
 
 (def #^{:macro true} ƒ #'defn)
 (def #^{:macro true} λ #'fn)
@@ -98,10 +99,12 @@
                (map* f (map rest colls))))))
    f colls))
 
-(defn map-keys
+(ƒ map-keys
   "Applies f to all the keys in the map."
-  [m f]
-  (reduce-kv (fn [m k v] (assoc m (f k) v)) {} (or m {})))
+  [f m]
+  (reduce-kv (fn [m k v] (assoc m (f k) v))
+             {}
+             (or m {})))
 
 (ƒ update-in*
   "Updates a value in a nested associative structure, where ks is a sequence of keys and f is a

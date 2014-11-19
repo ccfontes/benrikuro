@@ -1,4 +1,4 @@
-(defproject benrikuro "0.4.2"
+(defproject benrikuro "0.4.4"
 
   :url "https://github.com/ccfontes/benrikuro"
 
@@ -8,7 +8,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [prismatic/plumbing "0.3.2"]]
+                 [prismatic/plumbing "0.3.5"]]
 
   :profiles {:dev {:plugins [[codox "0.8.10"]]}}
 
