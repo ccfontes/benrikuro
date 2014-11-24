@@ -1,6 +1,7 @@
 benrikuro
 -------
 Clojure utility forms and aliases for some clojure.core forms.
+<img height=320 src="http://upload.wikimedia.org/wikipedia/commons/8/82/Onigiri_at_a_convenience_store_by_typester_in_Kamakura.jpg"></img>
 
 ### Installing
 -------

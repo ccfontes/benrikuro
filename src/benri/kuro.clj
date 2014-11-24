@@ -195,3 +195,12 @@
   (println "class: " (class arg))
   (println "value: " arg)
   arg)
+
+(defn fskip [f in ret]
+  "Wraps f so that it skips computation when
+   first input is equal to in, returning ret.
+   Useful e.g., for input empty collections."
+  (fn [& args]
+    (if (= (first args) in)
+      ret
+      (apply f args))))
