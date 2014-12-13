@@ -146,12 +146,6 @@
   "Same as -> but defaults to the initial value if the result is falsey."
   (or (eval `(-> ~x ~@args)) x))
 
-(ƒ and-> [x & args]
-  "Same as -> but returns the initial value if the result is true."
-  (and (eval `(-> ~x ~@args)) x))
-
-(defcopy or→ or->)
-
 (ƒ ->members [some-type]
   (↠ (→ some-type reflect :members)
      (filter :exception-types)
@@ -181,14 +175,14 @@
       (doto (.setAccessible true))
       (.get obj)))
 
-(defn debug
+(ƒ debug
   "Print class and value information for input Var."
   [arg]
   (println "debug")
   (println "class: " (class arg))
   (println "value: " arg))
 
-(defn thrush-debug
+(ƒ thrush-debug
   "Print class and value information for input Var inside '->' or '->>'."
   [arg]
   (println "trush debug")
@@ -196,7 +190,7 @@
   (println "value: " arg)
   arg)
 
-(defn fskip [f in ret]
+(ƒ fskip [f in ret]
   "Wraps f so that it skips computation when
    first input is equal to in, returning ret.
    Useful e.g., for input empty collections."
@@ -204,3 +198,20 @@
     (if (= (first args) in)
       ret
       (apply f args))))
+
+(ƒ butlast-last [& args]
+  [(butlast args) (last args)])
+
+(ƒ map-first-nth
+  "Map only first nth elements of coll."
+  [n f coll]
+  (concat (map f (take n coll))
+          (drop n coll)))
+
+(ƒ interpose-by
+  "Same as interpose, but sep string is the
+   return of f with adjacent items as inputs."
+  [f coll]
+  (→ #(identity [%1 (f %1 %2)])
+     (mapcat coll (rest coll))
+     (concat [(last coll)])))

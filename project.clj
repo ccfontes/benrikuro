@@ -1,4 +1,4 @@
-(defproject benrikuro "0.4.5"
+(defproject benrikuro "0.5.0"
 
   :url "https://github.com/ccfontes/benrikuro"
 
