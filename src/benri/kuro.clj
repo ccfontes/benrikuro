@@ -24,24 +24,34 @@
    (list `defcopy (with-meta name (assoc (meta name) :doc doc)) orig)))
 
 (defcopy fnk plumbing/fnk)
+(defcopy λk fnk)
+
 (defcopy defnk plumbing/defnk)
+(defcopy ƒk defnk)
+
 (defcopy map-vals plumbing/map-vals)
+
 (defcopy <- plumbing/<-)
+(def #^{:macro true} ← #'<-)
+
 (defcopy fn-> plumbing/fn->)
+(def #^{:macro true} λ→ #'fn->)
+
 (defcopy fn->> plumbing/fn->>)
+(def #^{:macro true} λ↠ #'fn->>)
+
 (defcopy update plumbing/update) ; OPTIMIZE remove after update to clj 1.7
 
 (def #^{:macro true} ƒ #'defn)
 (def #^{:macro true} λ #'fn)
 (def #^{:macro true} → #'->)
 (def #^{:macro true} ↠ #'->>)
-(def #^{:macro true} ← #'<-)
+
 (def #^{:macro true} ∨ #'or)
 (def #^{:macro true} ∧ #'and)
 (def #^{:macro true} ∃→ #'some->)
 (def #^{:macro true} ∃↠ #'some->>)
-(def #^{:macro true} λ→ #'fn->)
-(def #^{:macro true} λ↠ #'fn->>)
+
 
 ;(def χ def)
 (def →λ partial)
@@ -94,10 +104,12 @@
    to the coll values until the biggest coll is empty."
   ((fn map* [f colls]
      (lazy-seq
-       (when (some seq colls)
-         (cons (apply f (map first (filter seq colls)))
-               (map* f (map rest colls))))))
-   f colls))
+       (if-let [non-empty-colls (seq (filter seq colls))]
+         (let [first-items (map first non-empty-colls)
+               rest-colls (map rest non-empty-colls)]
+           (cons (apply f first-items)
+                 (map* f rest-colls))))))
+  f colls))
 
 (ƒ map-keys
   "Applies f to all the keys in the map."
@@ -135,7 +147,7 @@
   [m fn-m]
   (merge
     m
-    (some->> m (#(map (fn [[k f]] [k (f (k %))]) fn-m)) (into {}))))
+    (∃↠ m (#(map (fn [[k f]] [k (f (k %))]) fn-m)) (into {}))))
 
 (ƒ str->stream [string] (→ string .getBytes clojure.java.io/input-stream))
 (defcopy str→stream str->stream)
@@ -215,3 +227,8 @@
   (→ #(identity [%1 (f %1 %2)])
      (mapcat coll (rest coll))
      (concat [(last coll)])))
+
+(ƒ slice
+  "Like subvec, but for any collection."
+  ([coll start end] (↠ coll (take end) (drop start)))
+  ([coll start] (drop start coll)))

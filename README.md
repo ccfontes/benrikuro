@@ -18,6 +18,7 @@ user=> (update-each {:a 1 :b 2 :c 3} [:a :b] inc)
 {:a 2, :c 3, :b 3}
 user=> (update-multi {:a 1 :b 2 :c 3} {:a inc :b dec})
 {:a 2, :c 3, :b 1}
+user=> (map-dregs + [1 2 3] [1 2])
 ```
 Also read the [API](http://ccfontes.github.io/benrikuro/benri.kuro.html).
 

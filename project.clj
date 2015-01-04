@@ -1,4 +1,4 @@
-(defproject benrikuro "0.5.0"
+(defproject benrikuro "0.5.1"
 
   :url "https://github.com/ccfontes/benrikuro"
 
@@ -6,6 +6,9 @@
 
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+
+  :scm {:name "git"
+        :url "https://github.com/ccfontes/benrikuro"}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [prismatic/plumbing "0.3.5"]]
