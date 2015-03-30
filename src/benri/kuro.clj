@@ -40,7 +40,16 @@
 (defcopy fn->> plumbing/fn->>)
 (def #^{:macro true} λ↠ #'fn->>)
 
-(defcopy update plumbing/update) ; OPTIMIZE remove after update to clj 1.7
+(defn update
+  "Updates the value in map m at k with the function f.
+   Like update-in, but for updating a single top-level key.
+   Any additional args will be passed to f after the value.
+   WARNING As of Clojure 1.7 this function exists in clojure.core and
+   will not be exported by this namespace."
+  ([m k f] (assoc m k (f (get m k))))
+  ([m k f x1] (assoc m k (f (get m k) x1)))
+  ([m k f x1 x2] (assoc m k (f (get m k) x1 x2)))
+  ([m k f x1 x2 & xs] (assoc m k (apply f (get m k) x1 x2 xs))))
 
 (def #^{:macro true} ƒ #'defn)
 (def #^{:macro true} λ #'fn)
@@ -232,3 +241,30 @@
   "Like subvec, but for any collection."
   ([coll start end] (↠ coll (take end) (drop start)))
   ([coll start] (drop start coll)))
+
+(ƒ ^String trim-unicode
+  "Removes whitespace from both ends of string."
+  [^CharSequence s]
+  (let [len (.length s)]
+    (loop [rindex len]
+      (if (zero? rindex)
+        ""
+        (if (or (Character/isWhitespace (.charAt s (dec rindex)))
+                (= "　" (.charAt s (dec rindex))))
+          (recur (dec rindex))
+          ;; there is at least one non-whitespace char in the string,
+          ;; so no need to check for lindex reaching len.
+          (loop [lindex 0]
+            (if (Character/isWhitespace (.charAt s lindex))
+              (recur (inc lindex))
+              (.. s (subSequence lindex rindex) toString))))))))
+
+(ƒ last-subs
+  "Like take-last, but for strings."
+  [n s]
+  (->> s (take-last n) (apply str)))
+
+(ƒ drop-last-subs
+  "Like drop-last, but for strings."
+  [n s]
+  (->> s (drop-last n) (apply str)))

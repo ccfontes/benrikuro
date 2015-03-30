@@ -1,4 +1,4 @@
-(defproject benrikuro "0.5.1"
+(defproject benrikuro "0.5.2"
 
   :url "https://github.com/ccfontes/benrikuro"
 
@@ -10,8 +10,7 @@
   :scm {:name "git"
         :url "https://github.com/ccfontes/benrikuro"}
 
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 [prismatic/plumbing "0.3.5"]]
+  :dependencies [[org.clojure/clojure "1.5.1"] [prismatic/plumbing "0.4.1"]]
 
   :profiles {:dev {:plugins [[codox "0.8.10"]]}}
 
