@@ -40,6 +40,9 @@
 (defcopy fn->> plumbing/fn->>)
 (def #^{:macro true} λ↠ #'fn->>)
 
+(defcopy ?> plumbing/?>)
+(defcopy ?>> plumbing/?>>)
+
 (defn update
   "Updates the value in map m at k with the function f.
    Like update-in, but for updating a single top-level key.
@@ -268,3 +271,10 @@
   "Like drop-last, but for strings."
   [n s]
   (->> s (drop-last n) (apply str)))
+
+(defn find-pos
+  "Find needle positions in a haystack."
+  [needle haystack]
+  (keep-indexed
+    #(if (= %2 needle) %1)
+    haystack))
