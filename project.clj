@@ -10,6 +10,11 @@
   :scm {:name "git"
         :url "https://github.com/ccfontes/benrikuro"}
 
+  :repositories [["clojars" {:creds :gpg}]]
+  :deploy-repositories [["releases" :clojars] ["snapshots" :clojars]]
+
+  :creds :gpg
+
   :dependencies [[org.clojure/clojure "1.5.1"] [prismatic/plumbing "0.4.1"]]
 
   :profiles {:dev {:plugins [[codox "0.8.10"]]}}
