@@ -1,8 +1,7 @@
 (ns benri.kuro
   (:require [clojure.reflect :refer [reflect]]
             [clojure.pprint :refer [print-table]]
-            [plumbing.core :as plumbing])
-  (:refer-clojure :exclude [update])) ; OPTIMIZE remove after update to clj 1.7
+            [plumbing.core :as plumbing]))
 
 (defmacro defcopy
   "Defines a copy of a var: a new var with the same root binding (if
@@ -42,17 +41,6 @@
 
 (defcopy ?> plumbing/?>)
 (defcopy ?>> plumbing/?>>)
-
-(defn update
-  "Updates the value in map m at k with the function f.
-   Like update-in, but for updating a single top-level key.
-   Any additional args will be passed to f after the value.
-   WARNING As of Clojure 1.7 this function exists in clojure.core and
-   will not be exported by this namespace."
-  ([m k f] (assoc m k (f (get m k))))
-  ([m k f x1] (assoc m k (f (get m k) x1)))
-  ([m k f x1 x2] (assoc m k (f (get m k) x1 x2)))
-  ([m k f x1 x2 & xs] (assoc m k (apply f (get m k) x1 x2 xs))))
 
 (def #^{:macro true} ƒ #'defn)
 (def #^{:macro true} λ #'fn)
